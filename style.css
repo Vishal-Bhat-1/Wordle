@@ -76,6 +76,7 @@ body {
 }
 
 .title-word-clone {
+  padding-top: 25px;
   position: absolute;
   left: calc(50% + 75px);
   transform: rotate(25deg);
