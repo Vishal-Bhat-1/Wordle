@@ -10,6 +10,13 @@ body {
   --right: #538d4e;
 }
 
+.image{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  
+}
+
 #game {
   display: flex;
   justify-content: center;
