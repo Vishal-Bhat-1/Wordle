@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121213" />
+
+    <!-- HTML Meta Tags -->
+    <title>Wordle</title>
+    <meta name="description" content="Wordle" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div>
+    <img src="docs/design_system/Capture.PNG" alt="Logo" width="250" height="150" class="image">
+    <h1 class="title">Wordle <span class="title-word-clone">By Vishal and Mahamed</span></h1>
+    </div>
+    <div id="game"></div>
+    <div class = "grid"></div>
+        <h1 style="color: white;">Instructions:</h1>
+        <div class = "box wrong"></div>
+        <h2 style="color: white;">Correct letter wrong placement</h2>
+        <div class = "box right"></div>
+        <h2 style="color: white;">Correct letter correct placement</h2>
+        <div class = "box"></div>
+        <h2 style="color: white;">Blank</h2>
+        <div class = "box">A</div>
+        <h2 style="color: white;">Letter entered but word not submitted</h2>
+    <script src="index.js" type="module"></script>
+  </body>
+</html>

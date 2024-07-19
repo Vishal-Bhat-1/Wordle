@@ -1,17 +1,57 @@
 import { testDictionary, realDictionary } from './dictionary.js';
 
-// for testing purposes, make sure to use the test dictionary
-console.log('test dictionary:', testDictionary);
-
 const dictionary = realDictionary;
 const state = {
-  secret: dictionary[Math.floor(Math.random() * dictionary.length)],
-  grid: Array(6)
-    .fill()
-    .map(() => Array(5).fill('')),
+  secret: '',
+  grid: Array(6).fill().map(() => Array(5).fill('')),
   currentRow: 0,
   currentCol: 0,
 };
+
+async function fetchGameState() {
+  const response = await fetch('api.php?action=get_state');
+  const data = await response.json();
+  Object.assign(state, data);
+  updateGrid();
+}
+
+async function updateGameState() {
+  await fetch('api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'update_state',
+      game_state: JSON.stringify(state),
+    }),
+  });
+}
+
+async function submitGuess(guess) {
+  const response = await fetch('api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'submit_guess',
+      guess: guess,
+    }),
+  });
+  const result = await response.json();
+  revealWord(result.guess);
+  state.currentRow++;
+  state.currentCol = 0;
+  await updateGameState();
+}
+
+async function updateLeaderboard(score) {
+  await fetch('api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'update_score',
+      score: score,
+    }),
+  });
+}
 
 function drawGrid(container) {
   const grid = document.createElement('div');
@@ -46,15 +86,13 @@ function drawBox(container, row, col, letter = '') {
 }
 
 function registerKeyboardEvents() {
-  document.body.onkeydown = (e) => {
+  document.body.onkeydown = async (e) => {
     const key = e.key;
     if (key === 'Enter') {
       if (state.currentCol === 5) {
         const word = getCurrentWord();
         if (isWordValid(word)) {
-          revealWord(word);
-          state.currentRow++;
-          state.currentCol = 0;
+          await submitGuess(word);
         } else {
           alert('Not a valid word.');
         }
@@ -106,18 +144,12 @@ function revealWord(guess) {
   for (let i = 0; i < 5; i++) {
     const box = document.getElementById(`box${row}${i}`);
     const letter = box.textContent;
-    const numOfOccurrencesSecret = getNumOfOccurrencesInWord(
-      state.secret,
-      letter
-    );
+    const numOfOccurrencesSecret = getNumOfOccurrencesInWord(state.secret, letter);
     const numOfOccurrencesGuess = getNumOfOccurrencesInWord(guess, letter);
     const letterPosition = getPositionOfOccurrence(guess, letter, i);
 
     setTimeout(() => {
-      if (
-        numOfOccurrencesGuess > numOfOccurrencesSecret &&
-        letterPosition > numOfOccurrencesSecret
-      ) {
+      if (numOfOccurrencesGuess > numOfOccurrencesSecret && letterPosition > numOfOccurrencesSecret) {
         box.classList.add('empty');
       } else {
         if (letter === state.secret[i]) {
@@ -137,12 +169,15 @@ function revealWord(guess) {
   const isWinner = state.secret === guess;
   const isGameOver = state.currentRow === 5;
 
-  setTimeout(() => {
+  setTimeout(async () => {
     if (isWinner) {
       alert('Congratulations!');
+      const score = 1000 - (state.currentRow * 100); // Example scoring logic
+      await updateLeaderboard(score);
     } else if (isGameOver) {
       alert(`Better luck next time! The word was ${state.secret}.`);
     }
+    await fetchGameState(); // Reload game state after end of game
   }, 3 * animation_duration);
 }
 
@@ -165,7 +200,7 @@ function removeLetter() {
 function startup() {
   const game = document.getElementById('game');
   drawGrid(game);
-
+  fetchGameState();
   registerKeyboardEvents();
 }
 
