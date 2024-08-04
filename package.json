@@ -1,14 +1,13 @@
 
 {
-  "name": "wordle-clone",
+  "name": "wordle",
   "version": "1.0.0",
-  "description": "Wordle clone by DoubleDebug",
+  "description": "Wordle",
   "main": "index.mjs",
   "type": "module",
   "scripts": {
     "start": "http-server"
   },
-  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
     "http-server": "^0.12.3"
